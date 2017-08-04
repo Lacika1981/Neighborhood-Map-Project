@@ -1,6 +1,5 @@
 var map;
 var infoWindow;
-
 var myLatLng = { lat: 51.283947, lng: -1.080868 };
 
 function initMap() {
@@ -46,6 +45,7 @@ function initMap() {
 
         // If the place has a geometry, then present it on a map.
         if (place.geometry.viewport) {
+            console.log(place.geometry.viewport);
             map.fitBounds(place.geometry.viewport);
         } else {
             map.setCenter(place.geometry.location);
@@ -98,3 +98,35 @@ function populateInfoWindow(marker, infoWindow) {
         infoWindow.open(map, marker);
     }
 }
+
+var ViewModel = function () {
+    var markers = [];
+    this.restaurants = ko.observableArray([]);
+    var locations = {};
+    $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function (data, status) {
+        var cityRestaurants = data.nearby_restaurants;
+        for (i = 0; i < cityRestaurants.length; i++) {
+            var addressLat = cityRestaurants[i].restaurant.location.latitude;
+            var addressLon = cityRestaurants[i].restaurant.location.longitude;
+            locations.lat = parseFloat(addressLat);
+            locations.lng = parseFloat(addressLon);
+            var title = cityRestaurants[i].restaurant.name;
+            var marker = new google.maps.Marker({
+                map: map,
+                position: locations,
+                title: title,
+                animation: google.maps.Animation.DROP,
+                //icon: defaultIcon,
+                id: i
+            });
+            markers.push(marker);
+
+            marker.addListener('click', function () {
+                populateInfoWindow(this, largeInfoWindow);
+            })
+        }
+    })
+
+}
+
+ko.applyBindings(ViewModel);
