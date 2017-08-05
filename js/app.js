@@ -6,12 +6,11 @@ var markers = [];
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 13,
+        zoom: 10,
         center: myLatLng,
         //styles: styles,
         mapTypeControl: false
     });
-
     var marker = new google.maps.Marker({
         map: map,
         position: myLatLng,
@@ -22,11 +21,16 @@ function initMap() {
         populateInfoWindow(this, largeInfoWindow);
     })
 
+    markers.push(marker);
+
+
     var largeInfoWindow = new google.maps.InfoWindow();
 
     var search = document.getElementById('search');
     var input = document.getElementById('places-search');
     map.controls[google.maps.ControlPosition.TOP_CENTER].push(search);
+    var bounds = new google.maps.LatLngBounds();
+
 
     var options = {
         componentRestrictions: { country: "uk" }
@@ -39,9 +43,9 @@ function initMap() {
     autocomplete.bindTo('bounds', map);
 
     autocomplete.addListener('place_changed', function () {
-        hideMarkers(markers);
         //infowindow.close();
         marker.setVisible(false);
+        hideMarkers(markers);
         var place = autocomplete.getPlace();
         if (!place.geometry) {
             // User entered the name of a Place that was not suggested and
@@ -122,8 +126,10 @@ var ViewModel = function () {
         for (i = 0; i < cityRestaurants.length; i++) {
             var addressLat = cityRestaurants[i].restaurant.location.latitude;
             var addressLon = cityRestaurants[i].restaurant.location.longitude;
+            if (addressLat != 0 || addressLon != 0) {
             locations.lat = parseFloat(addressLat);
             locations.lng = parseFloat(addressLon);
+            }
             var title = cityRestaurants[i].restaurant.name;
             var marker = new google.maps.Marker({
                 map: map,
@@ -139,8 +145,24 @@ var ViewModel = function () {
                 populateInfoWindow(this, largeInfoWindow);
             })
         }
+        showListings();
     })
-
 }
+
+/* document.getElementById('show').addEventListener('click', function () {
+    showListings();
+}) */
+
+function showListings() {
+    var bounds = new google.maps.LatLngBounds();
+    // Extend the boundaries of the map for each marker and display the marker
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(map);
+        bounds.extend(markers[i].position);
+        console.log(markers);
+    }
+    map.fitBounds(bounds);
+};
+
 
 ko.applyBindings(ViewModel);
