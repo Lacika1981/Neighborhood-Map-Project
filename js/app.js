@@ -39,6 +39,7 @@ function initMap() {
     autocomplete.bindTo('bounds', map);
 
     autocomplete.addListener('place_changed', function () {
+        hideMarkers(markers);
         //infowindow.close();
         marker.setVisible(false);
         var place = autocomplete.getPlace();
@@ -116,7 +117,6 @@ var ViewModel = function () {
     this.restaurants = ko.observableArray([]);
     var locations = {};
     markers.length = 0;
-    hideMarkers(markers);
     $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function (data, status) {
         var cityRestaurants = data.nearby_restaurants;
         for (i = 0; i < cityRestaurants.length; i++) {
