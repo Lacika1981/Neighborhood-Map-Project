@@ -1,6 +1,8 @@
 var map;
 var infoWindow;
 var myLatLng = { lat: 51.283947, lng: -1.080868 };
+var searchedLatLng = {};
+var markers = [];
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
@@ -26,7 +28,11 @@ function initMap() {
     var input = document.getElementById('places-search');
     map.controls[google.maps.ControlPosition.TOP_CENTER].push(search);
 
-    var autocomplete = new google.maps.places.Autocomplete(input);
+    var options = {
+        componentRestrictions: { country: "uk" }
+    };
+
+    var autocomplete = new google.maps.places.Autocomplete(input, options);
     // Bind the map's bounds (viewport) property to the autocomplete object,
     // so that the autocomplete requests use the current map bounds for the
     // bounds option in the request.
@@ -45,16 +51,17 @@ function initMap() {
 
         // If the place has a geometry, then present it on a map.
         if (place.geometry.viewport) {
-            console.log(place.geometry.viewport);
             map.fitBounds(place.geometry.viewport);
         } else {
             map.setCenter(place.geometry.location);
             map.setZoom(17);  // Why 17? Because it looks good.
         }
         marker.setPosition(place.geometry.location);
+        myLatLng.lat = place.geometry.location.lat();
+        myLatLng.lng = place.geometry.location.lng();
+        ViewModel();
         marker.setVisible(true);
     })
-
 }
 
 function populateInfoWindow(marker, infoWindow) {
@@ -99,10 +106,17 @@ function populateInfoWindow(marker, infoWindow) {
     }
 }
 
+function hideMarkers(markers) {
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(null);
+    }
+}
+
 var ViewModel = function () {
-    var markers = [];
     this.restaurants = ko.observableArray([]);
     var locations = {};
+    markers.length = 0;
+    hideMarkers(markers);
     $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function (data, status) {
         var cityRestaurants = data.nearby_restaurants;
         for (i = 0; i < cityRestaurants.length; i++) {
