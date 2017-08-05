@@ -28,11 +28,12 @@ function initMap() {
 
     var search = document.getElementById('search');
     var input = document.getElementById('places-search');
-    map.controls[google.maps.ControlPosition.TOP_CENTER].push(search);
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(search);
     var bounds = new google.maps.LatLngBounds();
 
 
     var options = {
+        types: ['(regions)'],
         componentRestrictions: { country: "uk" }
     };
 
@@ -66,6 +67,7 @@ function initMap() {
         myLatLng.lng = place.geometry.location.lng();
         ViewModel();
         marker.setVisible(true);
+        markers.push(marker);
     })
 }
 
