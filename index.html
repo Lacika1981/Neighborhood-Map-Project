@@ -15,10 +15,10 @@
             <div class=boxes>
                 <input id="places-search" type="text" placeholder="Enter a location">
             </div>
-            <!-- <div class=boxes>
-                <input id="filter" type="text" placeholder="Enter cuisine">
-                <button id="myButton">GO</button>
-            </div>  -->
+            <div class=boxes>
+                <form data-bind="foreach: filteredRestaurant" id="filter" type="text" placeholder="Enter cuisine">
+                    <button id="myButton" data-bind="text: $data"></button>
+            </div>
         </div>
     </div>
 

@@ -3,11 +3,12 @@ var infoWindow;
 var myLatLng = { lat: 51.283947, lng: -1.080868 };
 var markers = [];
 var locations = {};
-var filterRestaurant = ko.observableArray([]);
+var filterRestaurant = ko.observableArray();
 
 
 function initMap() {
     var getRestaurants = function() {
+        filterRestaurant([]);
         $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function(data, status) {
             var cityRestaurants = data.nearby_restaurants;
             for (i = 0; i < cityRestaurants.length; i++) {
@@ -23,6 +24,7 @@ function initMap() {
                 }
                 var title = cityRestaurants[i].restaurant.name;
                 var cuisine = cityRestaurants[i].restaurant.cuisines;
+                filterRestaurant.push(cuisine);
                 var address = cityRestaurants[i].restaurant.location.address;
                 var price = cityRestaurants[i].restaurant.price_range;
                 switch (price) {
@@ -131,7 +133,6 @@ function initMap() {
         myLatLng.lat = place.geometry.location.lat();
         myLatLng.lng = place.geometry.location.lng();
         marker.setVisible(true);
-
         getRestaurants();
     })
 }
@@ -249,3 +250,11 @@ function showListings() {
     }
     map.fitBounds(bounds);
 };
+
+
+function AppViewModel() {
+    var self = this;
+    self.filteredRestaurant = filterRestaurant;
+}
+
+ko.applyBindings(new AppViewModel());
