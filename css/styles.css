@@ -5,9 +5,11 @@ body {
     margin: 0;
     padding: 0;
 }
+
 .title p {
     text-transform: uppercase;
 }
+
 #map {
     width: 100vw;
     height: 100vh;
@@ -18,10 +20,22 @@ select {
     position: absolute;
     right: 0;
 }
+
 #pano {
-    width: 400px;
-    height: 400px;
+    width: 200px;
+    height: 200px;
+    float: left;
 }
+
+
+/*remove compass*/
+
+.gm-style .gm-compass-icon,
+.gmnoprint,
+.gm-iv-address {
+    display: none;
+}
+
 #search {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -32,6 +46,7 @@ select {
     text-align: center;
     font-size: 25px;
 }
+
 #places-search,
 #filter {
     display: flex;
@@ -44,9 +59,11 @@ select {
     width: 400px;
     height: 50px;
 }
+
 .boxes {
     display: flex;
 }
+
 input::placeholder {
     text-align: center;
 }

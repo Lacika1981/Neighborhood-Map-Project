@@ -1,18 +1,18 @@
 var map;
 var infoWindow;
 var myLatLng = { lat: 51.283947, lng: -1.080868 };
-var searchedLatLng = {};
 var markers = [];
 var locations = {};
+var filterRestaurant = ko.observableArray([]);
 
 
 function initMap() {
-    var getRestaurants = function () {
-        $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function (data, status) {
+    var getRestaurants = function() {
+        $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function(data, status) {
             var cityRestaurants = data.nearby_restaurants;
             for (i = 0; i < cityRestaurants.length; i++) {
                 console.log(cityRestaurants, status);
-                if (cityRestaurants.length == 0){
+                if (cityRestaurants.length == 0) {
                     alert('ezaz');
                 }
                 var addressLat = cityRestaurants[i].restaurant.location.latitude;
@@ -23,33 +23,35 @@ function initMap() {
                 }
                 var title = cityRestaurants[i].restaurant.name;
                 var cuisine = cityRestaurants[i].restaurant.cuisines;
+                var address = cityRestaurants[i].restaurant.location.address;
                 var price = cityRestaurants[i].restaurant.price_range;
                 switch (price) {
                     case 1:
-                    price = '&#163;';
-                    break;
+                        price = '&#163;';
+                        break;
 
                     case 2:
-                    price = Array(3).join('&#163;');
-                    break;
+                        price = Array(3).join('&#163;');
+                        break;
 
                     case 3:
-                    price = Array(4).join('&#163;');
-                    break;
+                        price = Array(4).join('&#163;');
+                        break;
 
                     case 4:
-                    price = Array(5).join('&#163;');
-                    break;
+                        price = Array(5).join('&#163;');
+                        break;
 
                     case 5:
-                    price = Array(6).join('&#163;');
-                    break;
+                        price = Array(6).join('&#163;');
+                        break;
                 }
-                
+
                 var marker = new google.maps.Marker({
                     map: map,
                     position: locations,
                     title: title,
+                    address: address,
                     cuisine: cuisine,
                     price: price,
                     animation: google.maps.Animation.DROP,
@@ -58,7 +60,7 @@ function initMap() {
                 });
                 markers.push(marker);
 
-                marker.addListener('click', function () {
+                marker.addListener('click', function() {
                     infoWindow(this, largeInfoWindow);
                 })
 
@@ -88,7 +90,7 @@ function initMap() {
         icon: originIcon
     });
     markers.push(marker);
-    marker.addListener('click', function () {
+    marker.addListener('click', function() {
         populateInfoWindow(this, largeInfoWindow);
     });
     getRestaurants();
@@ -100,7 +102,7 @@ function initMap() {
     // bounds option in the request.
     autocomplete.bindTo('bounds', map);
 
-    autocomplete.addListener('place_changed', function () {
+    autocomplete.addListener('place_changed', function() {
         //infowindow.close();
         hideMarkers(markers);
         marker.setVisible(false);
@@ -118,12 +120,12 @@ function initMap() {
             map.fitBounds(place.geometry.viewport);
         } else {
             map.setCenter(place.geometry.location);
-            map.setZoom(17);  // Why 17? Because it looks good.
+            map.setZoom(17); // Why 17? Because it looks good.
         }
         marker.setPosition(place.geometry.location);
         markers.push(marker);
 
-        marker.addListener('click', function () {
+        marker.addListener('click', function() {
             populateInfoWindow(this, largeInfoWindow);
         })
         myLatLng.lat = place.geometry.location.lat();
@@ -155,7 +157,7 @@ function infoWindow(marker, infoWindow) {
         infoWindow.setContent('');
         infoWindow.marker = marker;
         // Make sure the marker property is cleared if the infowindow is closed.
-        infoWindow.addListener('closeclick', function () {
+        infoWindow.addListener('closeclick', function() {
             infoWindow.marker = null;
         });
         var streetViewService = new google.maps.StreetViewService();
@@ -167,7 +169,7 @@ function infoWindow(marker, infoWindow) {
             if (status == google.maps.StreetViewStatus.OK) {
                 var nearStreetViewLocation = data.location.latLng;
                 var heading = google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
-                infoWindow.setContent('<div><b>Restaurant name:</b> ' + marker.title + '</div><div id="pano"></div><div><b>Cuisine:</b><br>' + marker.cuisine + '</div><div><b>Price range: </b>' + marker.price + '</div>');
+                infoWindow.setContent('<div id="pano"></div><div><b>Restaurant name:</b> ' + marker.title + '</div><div><b>Address:</b> ' + marker.address + '</div><div><b>Cuisine:</b><br>' + marker.cuisine + '</div><div><b>Price range: </b>' + marker.price + '</div>');
                 var panoramaOptions = {
                     position: nearStreetViewLocation,
                     pov: {
@@ -178,8 +180,8 @@ function infoWindow(marker, infoWindow) {
                 var panorama = new google.maps.StreetViewPanorama(
                     document.getElementById('pano'), panoramaOptions);
             } else {
-                infoWindow.setContent('<div><b>Restaurant name:</b></div>' + marker.title + '</div>' +
-                    '<div>No Street View Found</div><div><b>Cuisine:</b><br>' + marker.cuisine + '</div><div><b>Price range: </b>' + marker.price + '</div>');
+                infoWindow.setContent('<div>No Street View Found</div><div><b>Restaurant name:</b></div>' + marker.title + '</div>' +
+                    '<div><b>Address:</b> ' + marker.address + '</div><div><b>Cuisine:</b><br>' + marker.cuisine + '</div><div><b>Price range: </b>' + marker.price + '</div>');
             }
         }
         // Use streetview service to get the closest streetview image within
@@ -197,7 +199,7 @@ function populateInfoWindow(marker, infoWindow) {
         infoWindow.setContent('');
         infoWindow.marker = marker;
         // Make sure the marker property is cleared if the infowindow is closed.
-        infoWindow.addListener('closeclick', function () {
+        infoWindow.addListener('closeclick', function() {
             infoWindow.marker = null;
         });
         var streetViewService = new google.maps.StreetViewService();
