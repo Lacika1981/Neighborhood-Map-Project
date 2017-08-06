@@ -13,8 +13,8 @@ function initMap() {
             var cityRestaurants = data.nearby_restaurants;
             for (i = 0; i < cityRestaurants.length; i++) {
                 console.log(cityRestaurants, status);
-                if (cityRestaurants.length == 0) {
-                    alert('ezaz');
+                if (cityRestaurants.length == 0) { // not working
+                    alert('no restaurant nearby');
                 }
                 var addressLat = cityRestaurants[i].restaurant.location.latitude;
                 var addressLon = cityRestaurants[i].restaurant.location.longitude;
