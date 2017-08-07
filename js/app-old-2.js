@@ -1,36 +1,30 @@
 var map;
 var infoWindow;
 var myLatLng = { lat: 51.283947, lng: -1.080868 };
-var markers = ko.observableArray();
-var locations = ko.observableArray();
-var cuisines = ko.observableArray();
-var names = ko.observableArray();
-var addresses = ko.observableArray();
-var prices = ko.observableArray();
+var markers = [];
+var locations = {};
+var filterRestaurant = ko.observableArray();
 
 
 function initMap() {
     var getRestaurants = function() {
-        markers([]);
-        locations([]);
-        cuisines([]);
-        names([]);
-        addresses([]);
-        prices([]);
+        filterRestaurant([]);
         $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function(data, status) {
             var cityRestaurants = data.nearby_restaurants;
             for (i = 0; i < cityRestaurants.length; i++) {
+                console.log(cityRestaurants, status);
                 if (cityRestaurants.length == 0) {
                     alert('ezaz');
                 }
                 var addressLat = cityRestaurants[i].restaurant.location.latitude;
                 var addressLon = cityRestaurants[i].restaurant.location.longitude;
                 if (addressLat != 0 || addressLon != 0) {
-                    locations().lat = parseFloat(addressLat);
-                    locations().lng = parseFloat(addressLon);
+                    locations.lat = parseFloat(addressLat);
+                    locations.lng = parseFloat(addressLon);
                 }
-                var name = cityRestaurants[i].restaurant.name;
+                var title = cityRestaurants[i].restaurant.name;
                 var cuisine = cityRestaurants[i].restaurant.cuisines;
+                filterRestaurant.push(cuisine);
                 var address = cityRestaurants[i].restaurant.location.address;
                 var price = cityRestaurants[i].restaurant.price_range;
                 switch (price) {
@@ -55,15 +49,10 @@ function initMap() {
                         break;
                 }
 
-                cuisines.push(cuisine);
-                names.push(name);
-                addresses.push(address);
-                prices.push(price);
-
                 var marker = new google.maps.Marker({
                     map: map,
-                    position: locations(),
-                    title: name,
+                    position: locations,
+                    title: title,
                     address: address,
                     cuisine: cuisine,
                     price: price,
@@ -117,9 +106,9 @@ function initMap() {
 
     autocomplete.addListener('place_changed', function() {
         //infowindow.close();
-        hideMarkers(markers());
+        hideMarkers(markers);
         marker.setVisible(false);
-        markers([]);
+        markers = [];
         var place = autocomplete.getPlace();
         if (!place.geometry) {
             // User entered the name of a Place that was not suggested and
@@ -136,7 +125,7 @@ function initMap() {
             map.setZoom(17); // Why 17? Because it looks good.
         }
         marker.setPosition(place.geometry.location);
-        markers().push(marker);
+        markers.push(marker);
 
         marker.addListener('click', function() {
             populateInfoWindow(this, largeInfoWindow);
@@ -255,9 +244,9 @@ function hideMarkers(markers) {
 function showListings() {
     var bounds = new google.maps.LatLngBounds();
     // Extend the boundaries of the map for each marker and display the marker
-    for (var i = 0; i < markers().length; i++) {
-        markers()[i].setMap(map);
-        bounds.extend(markers()[i].position);
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(map);
+        bounds.extend(markers[i].position);
     }
     map.fitBounds(bounds);
 };
@@ -265,16 +254,7 @@ function showListings() {
 
 function AppViewModel() {
     var self = this;
-    self.markers = markers;
-    self.locations = locations;
-    self.cuisines = cuisines;
-    self.names = names;
-    self.addresses = addresses;
-    self.prices = prices;
-
-    self.info = ko.pureComputed(function() {
-        return self.names() + ' ' + self.addresses();
-    })
+    self.filteredRestaurant = filterRestaurant;
 }
 
 ko.applyBindings(new AppViewModel());
