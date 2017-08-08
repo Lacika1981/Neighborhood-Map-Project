@@ -1,6 +1,8 @@
 function AppViewModel() {
     var self = this;
     var map, infoWindow;
+    self.filterItem = ko.observable('');
+    self.filteredList = ko.observableArray();
     self.markers = ko.observableArray();
     self.locations = ko.observableArray();
     self.cuisines = ko.observableArray();
@@ -8,6 +10,7 @@ function AppViewModel() {
     self.addresses = ko.observableArray();
     self.prices = ko.observableArray();
     var myLatLng = { lat: 51.283947, lng: -1.080868 };
+    console.log(self.filterItem());
 
     function initMap() {
         var getRestaurants = function () {
@@ -63,52 +66,49 @@ function AppViewModel() {
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(search);
     }
 
-    self.showRestaurant = function(restaurant) {
-    var clickedRestaurant = restaurant.address;
-    console.log(clickedRestaurant);
-    console.log('--------------------');
-     for(var key in self.markers()) {
-        console.log(self.markers());
-       if(clickedRestaurant === self.markers()[key].address) {
-        map.panTo(self.markers()[key].position);
-        map.setZoom(14);
-        infoWindow.setContent('<div><b>Restaurant name:</b> ' + self.markers()[key].title + '</div><div><b>Address:</b> ' + self.markers()[key].address + '</div><div><b>Cuisine:</b><br>' + self.markers()[key].cuisine + '</div><div><b>Price range: </b>' + self.markers()[key].price + '</div>');
-        infoWindow.open(map, this);
-        map.panBy(0, -150);
-      } 
-    } 
-  };
+    self.showRestaurant = function (restaurant) {
+        var clickedRestaurant = restaurant.address;
+        console.log(clickedRestaurant);
+        console.log('--------------------');
+        for (var key in self.markers()) {
+            console.log(self.markers());
+            if (clickedRestaurant === self.markers()[key].address) {
+                map.panTo(self.markers()[key].position);
+                map.setZoom(18);
+                infoWindow.setContent('<div><b>Restaurant name:</b> ' + self.markers()[key].title + '</div><div><b>Address:</b> ' + self.markers()[key].address + '</div><div><b>Cuisine:</b><br>' + self.markers()[key].cuisine + '</div><div><b>Price range: </b>' + self.markers()[key].price + '</div>');
+                infoWindow.open(map, this);
+            }
+        }
+    };
 
-  
-  
+    self.clear = function(){
+        showListings();
+        infoWindow.close(map);
+        self.filterItem('');
+    }
 
-            /* var streetViewService = new google.maps.StreetViewService();
-            var radius = 50;
-            // In case the status is OK, which means the pano was found, compute the
-            // position of the streetview image, then calculate the heading, then get a
-            // panorama from that and set the options
-            function getStreetView(data, status) {
-                if (status == google.maps.StreetViewStatus.OK) {
-                    var nearStreetViewLocation = data.location.latLng;
-                    var heading = google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
-                    content = infoWindow.setContent('<div id="pano"></div><div><b>Restaurant name:</b> ' + marker.title + '</div><div><b>Address:</b> ' + marker.address + '</div><div><b>Cuisine:</b><br>' + marker.cuisine + '</div><div><b>Price range: </b>' + marker.price + '</div>');
-                    var panoramaOptions = {
-                        position: nearStreetViewLocation,
-                        pov: {
-                            heading: heading,
-                            pitch: 15
-                        }
-                    };
-                    var panorama = new google.maps.StreetViewPanorama(
-                        document.getElementById('pano'), panoramaOptions);
-                } else {
-                    infoWindow.setContent('<div>No Street View Found</div><div><b>Restaurant name:</b></div>' + marker.title + '</div>' +
-                        '<div><b>Address:</b> ' + marker.address + '</div><div><b>Cuisine:</b><br>' + marker.cuisine + '</div><div><b>Price range: </b>' + marker.price + '</div>');
-                }
-            // Use streetview service to get the closest streetview image within
-            // 50 meters of the markers position
-            streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-        } */
+    self.filter = ko.computed(function() {
+    var filter = self.filterItem().toLowerCase();
+    if (!filter) {
+        return self.markers();
+    } else {
+        self.filteredList([]);
+        var bounds = new google.maps.LatLngBounds();
+        //console.log(self.filterItem());
+        for (var i = 0; i < self.markers().length; i++) {
+            if (self.markers()[i].title.toLowerCase().indexOf(filter) != -1) {
+                console.log(self.markers()[i].title);
+                self.filteredList.push(self.markers()[i].title);
+                console.log(self.filteredList());
+                self.markers()[i].setMap(map);
+                bounds.extend(self.markers()[i].position);
+            }  else {
+                self.clear;
+            }
+            map.fitBounds(bounds);
+        }
+    }
+})
 
     function hideMarkers(markers) {
         for (var i = 0; i < markers.length; i++) {

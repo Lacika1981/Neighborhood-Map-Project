@@ -21,6 +21,11 @@
                     <p data-bind="text: title"></p>
                 </li>
             </ul>
+            <p data-bind="text: filteredList"></p>
+            <button data-bind="click: clear"></button>
+            <form>
+            <input data-bind="value: filterItem, valueUpdate: 'afterkeydown'"></input>
+            </form>
         </div>
     </div>
 
