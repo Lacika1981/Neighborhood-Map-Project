@@ -15,9 +15,17 @@
             <div class=boxes>
                 <input id="places-search" type="text" placeholder="Enter a location">
             </div>
-            <div class=boxes>
+         <!--   <div class=boxes>
                 <span data-bind="text: info"></span>
-            </div>
+            </div>-->
+
+            <ul data-bind="foreach: markers">
+                <li>
+                    <p data-bind="text: title"></p>
+                    <p data-bind="text: address"></p>
+
+                </li>
+            </ul>
         </div>
     </div>
 

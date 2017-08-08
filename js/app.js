@@ -92,7 +92,7 @@ function initMap() {
     };
 
     map = new google.maps.Map(document.getElementById('map'), {
-        center: myLatLng,
+        //center: myLatLng,
         mapTypeControl: false
     });
     var marker = new google.maps.Marker({
@@ -146,6 +146,9 @@ function initMap() {
         marker.setVisible(true);
         getRestaurants();
     })
+
+
+    ko.applyBindings(new AppViewModel());
 }
 
 // This function takes in a COLOR, and then creates a new marker
@@ -271,10 +274,4 @@ function AppViewModel() {
     self.names = names;
     self.addresses = addresses;
     self.prices = prices;
-
-    self.info = ko.pureComputed(function() {
-        return self.names() + ' ' + self.addresses();
-    })
 }
-
-ko.applyBindings(new AppViewModel());
