@@ -10,20 +10,15 @@
     <div id="container">
         <div id="search">
             <div class="title">
-                <p>Search for location</p>
-            </div>
-            <div class=boxes>
-                <input id="places-search" type="text" placeholder="Enter a location">
+                <p>Restaurants</p>
             </div>
          <!--   <div class=boxes>
                 <span data-bind="text: info"></span>
             </div>-->
 
             <ul data-bind="foreach: markers">
-                <li>
+                <li data-bind="click: $parent.showRestaurant">
                     <p data-bind="text: title"></p>
-                    <p data-bind="text: address"></p>
-
                 </li>
             </ul>
         </div>
@@ -34,8 +29,8 @@
     <!-- https://developers.google.com/maps/documentation/javascript/libraries -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="js/knockout-3.4.2.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyAw2wf3AfgVr3ux3xWaVkrccqjpzbDdF1E&v=3"></script>
     <script src="js/app.js"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyAw2wf3AfgVr3ux3xWaVkrccqjpzbDdF1E&v=3&callback=initMap"></script>
 </body>
 
 </html>
