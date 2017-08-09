@@ -3,6 +3,7 @@ function AppViewModel() {
     var map, infoWindow;
     self.filterItem = ko.observable('');
     self.filteredList = ko.observableArray();
+    self.restaurant = ko.observableArray();
     self.markers = ko.observableArray();
     self.locations = ko.observableArray();
     self.cuisines = ko.observableArray();
@@ -10,7 +11,6 @@ function AppViewModel() {
     self.addresses = ko.observableArray();
     self.prices = ko.observableArray();
     var myLatLng = { lat: 51.283947, lng: -1.080868 };
-    console.log(self.filterItem());
 
     function initMap() {
         var getRestaurants = function () {
@@ -34,11 +34,6 @@ function AppViewModel() {
                     var address = cityRestaurants[i].restaurant.location.address;
                     var price = cityRestaurants[i].restaurant.price_range;
 
-                    self.cuisines.push(cuisine);
-                    self.names.push(name);
-                    self.addresses.push(address);
-                    self.prices.push(price);
-
                     self.marker = new google.maps.Marker({
                         map: map,
                         position: self.locations(),
@@ -50,11 +45,19 @@ function AppViewModel() {
                         //icon: defaultIcon,
                         id: i
                     });
+
+                    self.restaurant.push({
+                        cuisines: cuisine,
+                        names: name,
+                        addresses: address,
+                        prices: price,
+                        locations: self.locations(),
+                        markers: self.marker
+                    })
                     self.markers.push(self.marker);
                 }
                 showListings();
             })
-            console.log(self.markers());
         }
 
         infoWindow = new google.maps.InfoWindow();
@@ -64,51 +67,68 @@ function AppViewModel() {
         });
         getRestaurants();
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(search);
+
+        var marker = new google.maps.Marker({
+            map: map,
+            animation: google.maps.Animation.DROP
+        });
+
     }
 
     self.showRestaurant = function (restaurant) {
-        var clickedRestaurant = restaurant.address;
+        var clickedRestaurant = restaurant.addresses;
         console.log(clickedRestaurant);
         console.log('--------------------');
-        for (var key in self.markers()) {
-            console.log(self.markers());
-            if (clickedRestaurant === self.markers()[key].address) {
-                map.panTo(self.markers()[key].position);
-                map.setZoom(18);
-                infoWindow.setContent('<div><b>Restaurant name:</b> ' + self.markers()[key].title + '</div><div><b>Address:</b> ' + self.markers()[key].address + '</div><div><b>Cuisine:</b><br>' + self.markers()[key].cuisine + '</div><div><b>Price range: </b>' + self.markers()[key].price + '</div>');
-                infoWindow.open(map, this);
+        for (var key in self.restaurant()) {
+            if (clickedRestaurant === self.restaurant()[key].addresses) {
+                console.log(self.restaurant()[key].markers.position);
+               map.panTo(self.restaurant()[key].markers.position);
+                //map.setZoom(14);
+                infoWindow.setContent('<div><b>Restaurant name:</b> ' + self.restaurant()[key].names + '</div><div><b>Address:</b> ' + self.restaurant()[key].addresses + '</div><div><b>Cuisine:</b><br>' + self.restaurant()[key].cuisines + '</div><div><b>Price range: </b>' + self.restaurant()[key].prices + '</div>');
+                infoWindow.open(map, self.restaurant()[key].markers);
             }
         }
     };
 
-    self.clear = function(){
+    self.clear = function () {
         showListings();
         infoWindow.close(map);
         self.filterItem('');
+        self.filteredList('');
     }
 
-    self.filter = ko.computed(function() {
-    var filter = self.filterItem().toLowerCase();
-    if (!filter) {
-        return self.markers();
-    } else {
-        self.filteredList([]);
-        var bounds = new google.maps.LatLngBounds();
-        //console.log(self.filterItem());
-        for (var i = 0; i < self.markers().length; i++) {
-            if (self.markers()[i].title.toLowerCase().indexOf(filter) != -1) {
-                console.log(self.markers()[i].title);
-                self.filteredList.push(self.markers()[i].title);
-                console.log(self.filteredList());
-                self.markers()[i].setMap(map);
-                bounds.extend(self.markers()[i].position);
-            }  else {
-                self.clear;
-            }
-            map.fitBounds(bounds);
+    self.hideMarkers = function (markers) {
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setMap(null);
         }
     }
-})
+
+    self.filter = ko.computed(function () {
+        var filter = self.filterItem().toLowerCase();
+        if (!filter) {
+            return self.markers();
+        } else {
+            self.filteredList([]);
+            var bounds = new google.maps.LatLngBounds();
+            for (var i = 0; i < self.restaurant().length; i++) {
+
+                if (self.restaurant()[i].names.toLowerCase().indexOf(filter) != -1) {
+                    self.filteredList.push(self.restaurant()[i].names);
+
+                    self.restaurant()[i].markers.setMap(map);
+                    
+                    bounds.extend(self.restaurant()[i].locations);
+                } else {
+                    self.restaurant()[i].markers.setMap(null);
+                    self.restaurant()[i].names = '';
+                }
+                map.fitBounds(bounds);
+                map.setZoom(14);
+            }
+        }
+    })
+
+    console.log(self.restaurant());
 
     function hideMarkers(markers) {
         for (var i = 0; i < markers.length; i++) {
@@ -124,9 +144,77 @@ function AppViewModel() {
             bounds.extend(self.markers()[i].position);
         }
         map.fitBounds(bounds);
+        map.setZoom(14);
     };
 
     initMap();
 }
 
 ko.applyBindings(new AppViewModel());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*      var search = document.getElementById('search');
+    var input = document.getElementById('places-search');
+    var bounds = new google.maps.LatLngBounds();
+    var options = {
+        types: ['(regions)'],
+        componentRestrictions: { country: "uk" }
+    };
+
+     var autocomplete = new google.maps.places.Autocomplete(input, options);
+    // Bind the map's bounds (viewport) property to the autocomplete object,
+    // so that the autocomplete requests use the current map bounds for the
+    // bounds option in the request.
+    autocomplete.bindTo('bounds', map);
+
+    autocomplete.addListener('place_changed', function() {
+        //infowindow.close();
+        self.hideMarkers(self.markers());
+        self.marker.setVisible(false);
+        self.markers([]);
+        var place = autocomplete.getPlace();
+        if (!place.geometry) {
+            // User entered the name of a Place that was not suggested and
+            // pressed the Enter key, or the Place Details request failed.
+            window.alert("No details available for input: '" + place.name + "'");
+            return;
+        }
+
+        // If the place has a geometry, then present it on a map.
+        if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+        } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17); // Why 17? Because it looks good.
+        }
+        self.marker.setPosition(place.geometry.location);
+        self.markers().push(marker);
+
+        self.marker.addListener('click', function() {
+            populateInfoWindow(this, largeInfoWindow);
+        })
+        myLatLng.lat = place.geometry.location.lat();
+        myLatLng.lng = place.geometry.location.lng();
+        self.marker.setVisible(true);
+        getRestaurants();
+    }) */

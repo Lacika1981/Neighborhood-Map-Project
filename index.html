@@ -16,13 +16,12 @@
                 <span data-bind="text: info"></span>
             </div>-->
 
-            <ul data-bind="foreach: markers">
+            <ul data-bind="foreach: restaurant">
                 <li data-bind="click: $parent.showRestaurant">
-                    <p data-bind="text: title"></p>
+                    <p data-bind="text: names"></p>
                 </li>
             </ul>
-            <p data-bind="text: filteredList"></p>
-            <button data-bind="click: clear"></button>
+            <button data-bind="click: clear">Reset</button>
             <form>
             <input data-bind="value: filterItem, valueUpdate: 'afterkeydown'"></input>
             </form>
