@@ -122,6 +122,7 @@ function AppViewModel() {
             var bounds = new google.maps.LatLngBounds();
             for (var i = 0, len = restaurantArray.length; i < len; i++) {
                 if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
+                    tick = false;
                     console.log(restaurantArray[i].names)
                     restaurantArray[i].markers.setMap(map);
                     self.filteredList.push(restaurantArray[i]);

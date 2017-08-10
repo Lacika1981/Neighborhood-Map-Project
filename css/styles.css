@@ -6,6 +6,43 @@ body {
     padding: 0;
 }
 
+#container {
+    position: relative;
+}
+
+#search {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    background-color: rgba(255, 137, 68, 0.75);
+    font-family: Roboto;
+    text-align: center;
+    /* font-size: 25px; */
+}
+
+.restaurantNames {
+    border: 1px double black;
+    border-radius: 5px;
+    padding: 7px 5px;
+}
+
+input {
+    text-align: center;
+    padding: 7px 5px;
+}
+
+#resetButton {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.restaurantNames:hover {
+    background-color: yellowgreen;
+}
+
 .title p {
     text-transform: uppercase;
 }
@@ -25,18 +62,6 @@ ul {
     position: absolute;
 }
 
-select {
-    position: absolute;
-    right: 0;
-}
-
-#pano {
-    width: 200px;
-    height: 200px;
-    float: left;
-}
-
-
 /*remove compass*/
 
 .gm-style .gm-compass-icon,
@@ -45,38 +70,10 @@ select {
     display: none;
 }
 
-#search {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    outline: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    background-color: lightskyblue;
-    font-family: Roboto;
-    text-align: center;
-    font-size: 25px;
-}
-
-#places-search,
-#filter {
-    display: flex;
-    background-color: #fff;
-    font-family: Roboto;
-    font-size: 15px;
-    font-weight: 300;
-    padding: 0 11px 0 13px;
-    text-overflow: ellipsis;
-    width: 400px;
-    height: 50px;
-}
-
 .boxes {
     display: flex;
 }
 
 input::placeholder {
-    text-align: center;
-}
-
-input {
     text-align: center;
 }
