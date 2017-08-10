@@ -47,6 +47,10 @@ function AppViewModel() {
                         id: i
                     });
 
+                    self.marker.addListener('click', function () {
+                        populateInfoWindow(this, infoWindow);
+                    })
+
                     self.restaurant.push({
                         cuisines: cuisine,
                         names: name,
@@ -59,7 +63,6 @@ function AppViewModel() {
                 }
                 self.filteredList(self.restaurant());
                 self.restaurantArrayFix(self.restaurant());
-                console.log(self.filteredList());
                 showListings();
             })
         }
@@ -107,6 +110,8 @@ function AppViewModel() {
         }
     }
 
+    var tick = false;
+
     self.filter = ko.computed(function() {
         var filter = self.filterItem().toLowerCase();
         var restaurantArray = self.restaurant();
@@ -119,11 +124,14 @@ function AppViewModel() {
                 if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
                     console.log(restaurantArray[i].names)
                     restaurantArray[i].markers.setMap(map);
-                    restaurantArray[i].markers.setAnimation(google.maps.Animation.DROP)
                     self.filteredList.push(restaurantArray[i]);
                     bounds.extend(restaurantArray[i].locations);
                     map.fitBounds(bounds);
                     map.setZoom(14);
+                    if (!tick){
+                        restaurantArray[i].markers.setAnimation(google.maps.Animation.DROP);
+                        tick = true;
+                    }
                     console.log(self.restaurantArrayFix());
                 } else {
                     restaurantArray[i].markers.setMap(null);
@@ -131,6 +139,26 @@ function AppViewModel() {
             }
         }
     })
+
+    function populateInfoWindow(marker, infoWindow) {
+        // Check to make sure the infowindow is not already opened on this marker.
+        if (infoWindow.marker != marker) {
+            // Clear the infowindow content to give the streetview time to load.
+            infoWindow.setContent('');
+            infoWindow.marker = marker;
+            // Make sure the marker property is cleared if the infowindow is closed.
+            infoWindow.addListener('closeclick', function () {
+                infoWindow.marker = null;
+            });
+
+            infoWindow.setContent('<div><b>Restaurant name:</b> ' + marker.title + '</div><div><b>Address:</b> ' + marker.address + '</div><div><b>Cuisine:</b><br>' + marker.cuisine + '</div><div><b>Price range: </b>' + marker.price + '</div>');
+
+        }
+        infoWindow.open(map, marker);
+    }
+
+
+
 
     /* self.filter = ko.computed(function () {
         var filter = self.filterItem().toLowerCase();
