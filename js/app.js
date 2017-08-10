@@ -1,6 +1,7 @@
 function AppViewModel() {
     var self = this;
     var map, infoWindow;
+    self.restaurantArrayFix = ko.observableArray();
     self.filterItem = ko.observable('');
     self.filteredList = ko.observableArray();
     self.restaurant = ko.observableArray();
@@ -13,14 +14,14 @@ function AppViewModel() {
     var myLatLng = { lat: 51.283947, lng: -1.080868 };
 
     function initMap() {
-        var getRestaurants = function () {
+        var getRestaurants = function() {
             self.markers([]);
             self.locations([]);
             self.cuisines([]);
             self.names([]);
             self.addresses([]);
             self.prices([]);
-            $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function (data, status) {
+            $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function(data, status) {
                 var cityRestaurants = data.nearby_restaurants;
                 for (i = 0; i < cityRestaurants.length; i++) {
                     var addressLat = cityRestaurants[i].restaurant.location.latitude;
@@ -57,6 +58,7 @@ function AppViewModel() {
                     self.markers.push(self.marker);
                 }
                 self.filteredList(self.restaurant());
+                self.restaurantArrayFix(self.restaurant());
                 console.log(self.filteredList());
                 showListings();
             })
@@ -77,14 +79,14 @@ function AppViewModel() {
 
     }
 
-    self.showRestaurant = function (restaurant) {
+    self.showRestaurant = function(restaurant) {
         var clickedRestaurant = restaurant.addresses;
         console.log(clickedRestaurant);
         console.log('--------------------');
         for (var key in self.restaurant()) {
             if (clickedRestaurant === self.restaurant()[key].addresses) {
                 console.log(self.restaurant()[key].markers.position);
-               map.panTo(self.restaurant()[key].markers.position);
+                map.panTo(self.restaurant()[key].markers.position);
                 //map.setZoom(14);
                 infoWindow.setContent('<div><b>Restaurant name:</b> ' + self.restaurant()[key].names + '</div><div><b>Address:</b> ' + self.restaurant()[key].addresses + '</div><div><b>Cuisine:</b><br>' + self.restaurant()[key].cuisines + '</div><div><b>Price range: </b>' + self.restaurant()[key].prices + '</div>');
                 infoWindow.open(map, self.restaurant()[key].markers);
@@ -92,20 +94,20 @@ function AppViewModel() {
         }
     };
 
-    self.clear = function () {
+    self.clear = function() {
         showListings();
         infoWindow.close(map);
         self.filterItem('');
-        self.restaurant()
+        self.filteredList(self.restaurantArrayFix());
     }
 
-    self.hideMarkers = function (markers) {
+    self.hideMarkers = function(markers) {
         for (var i = 0; i < markers.length; i++) {
             markers[i].setMap(null);
         }
     }
 
-    self.filter = ko.computed(function () {
+    self.filter = ko.computed(function() {
         var filter = self.filterItem().toLowerCase();
         var restaurantArray = self.restaurant();
         if (!filter) {
@@ -117,13 +119,15 @@ function AppViewModel() {
                 if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
                     console.log(restaurantArray[i].names)
                     restaurantArray[i].markers.setMap(map);
+                    restaurantArray[i].markers.setAnimation(google.maps.Animation.DROP)
                     self.filteredList.push(restaurantArray[i]);
                     bounds.extend(restaurantArray[i].locations);
+                    map.fitBounds(bounds);
+                    map.setZoom(14);
+                    console.log(self.restaurantArrayFix());
                 } else {
                     restaurantArray[i].markers.setMap(null);
                 }
-                map.fitBounds(bounds);
-                map.setZoom(14);
             }
         }
     })
