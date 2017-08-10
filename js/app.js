@@ -56,6 +56,8 @@ function AppViewModel() {
                     })
                     self.markers.push(self.marker);
                 }
+                self.filteredList(self.restaurant());
+                console.log(self.filteredList());
                 showListings();
             })
         }
@@ -94,7 +96,7 @@ function AppViewModel() {
         showListings();
         infoWindow.close(map);
         self.filterItem('');
-        self.filteredList('');
+        self.restaurant()
     }
 
     self.hideMarkers = function (markers) {
@@ -105,28 +107,48 @@ function AppViewModel() {
 
     self.filter = ko.computed(function () {
         var filter = self.filterItem().toLowerCase();
+        var restaurantArray = self.restaurant();
         if (!filter) {
             return self.markers();
         } else {
             self.filteredList([]);
             var bounds = new google.maps.LatLngBounds();
-            for (var i = 0; i < self.restaurant().length; i++) {
-
-                if (self.restaurant()[i].names.toLowerCase().indexOf(filter) != -1) {
-                    self.filteredList.push(self.restaurant()[i].names);
-
-                    self.restaurant()[i].markers.setMap(map);
-                    
-                    bounds.extend(self.restaurant()[i].locations);
+            for (var i = 0, len = restaurantArray.length; i < len; i++) {
+                if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
+                    console.log(restaurantArray[i].names)
+                    restaurantArray[i].markers.setMap(map);
+                    self.filteredList.push(restaurantArray[i]);
+                    bounds.extend(restaurantArray[i].locations);
                 } else {
-                    self.restaurant()[i].markers.setMap(null);
-                    self.restaurant()[i].names = '';
+                    restaurantArray[i].markers.setMap(null);
                 }
                 map.fitBounds(bounds);
                 map.setZoom(14);
             }
         }
     })
+
+    /* self.filter = ko.computed(function () {
+        var filter = self.filterItem().toLowerCase();
+        var array = self.restaurant();
+        if (!filter) {
+            return self.markers();
+        } else {
+            self.filteredList([]);
+            var bounds = new google.maps.LatLngBounds();
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].names.toLowerCase().indexOf(filter) != -1) {
+                    self.filteredList.push(self.restaurant()[i].names);
+                    self.filteredList()[i].markers.setMap(map);
+                    bounds.extend(self.filteredList()[i].locations);
+                } else {
+                    self.filteredList()[i].markers.setMap(null);
+                }
+                map.fitBounds(bounds);
+                map.setZoom(14);
+            }
+        }
+    }) */
 
     console.log(self.restaurant());
 
