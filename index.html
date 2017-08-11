@@ -12,6 +12,8 @@
 <body>
     <div id="container">
         <div id="search">
+            <!-- <div id="menu">M</div> -->
+            <div class="entypo-menu"></div>
             <div class="title">
                 <p>Restaurants</p>
             </div>
@@ -20,7 +22,7 @@
                     <p class="restaurantNames" data-bind="text: names"></p>
                 </li>
             </ul>
-            <button id="resetButton" data-bind="click: clear">Reset</button>
+            <button id="resetButton" data-bind="click: clear, fadeVisible: filterItemLength() > filteredList().length">Reset</button>
             <form>
                 <input data-bind="value: filterItem, valueUpdate: 'afterkeydown'" placeholder="Search for restaurant">
             </form>

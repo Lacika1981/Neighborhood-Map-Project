@@ -1,3 +1,5 @@
+@import url(http://weloveiconfonts.com/api/?family=entypo);
+
 html,
 body {
     font-family: Arial, sans-serif;
@@ -6,11 +8,23 @@ body {
     padding: 0;
 }
 
+[class*="entypo-"]:before {
+    font-family: 'entypo', sans-serif;
+    position: absolute;
+    left: 165px;
+    z-index: 99;
+    font-size: 35px;
+}
+
 #container {
     position: relative;
 }
 
 #search {
+    width: 150px;
+    max-height: 100%;
+    overflow: visible;
+    position: absolute;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     outline: none;
@@ -19,17 +33,21 @@ body {
     font-family: Roboto;
     text-align: center;
     /* font-size: 25px; */
+    transform: translateX(-160px);
+    transition-duration: 0.5s;
 }
 
 .restaurantNames {
     border: 1px double black;
     border-radius: 5px;
-    padding: 7px 5px;
+    padding: 2px 5px;
 }
 
 input {
     text-align: center;
     padding: 7px 5px;
+    width: 150px;
+    box-sizing: border-box;
 }
 
 #resetButton {
@@ -62,18 +80,14 @@ ul {
     position: absolute;
 }
 
-/*remove compass*/
-
-.gm-style .gm-compass-icon,
-.gmnoprint,
-.gm-iv-address {
-    display: none;
-}
-
-.boxes {
-    display: flex;
-}
-
 input::placeholder {
     text-align: center;
+}
+
+@media screen and (orientation: portrait) and (min-width: 480px){
+    .restaurantNames {
+    border: 1px double black;
+    border-radius: 5px;
+    padding: 7px 5px;
+}
 }

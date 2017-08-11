@@ -1,3 +1,16 @@
+ko.bindingHandlers.fadeVisible = {
+    init: function(element, valueAccessor) {
+        // Start visible/invisible according to initial value
+        var shouldDisplay = valueAccessor();
+        $(element).hide(shouldDisplay);
+    },
+    update: function(element, valueAccessor) {
+        // On update, fade in/out
+        var shouldDisplay = valueAccessor();
+        shouldDisplay ? $(element).fadeIn() : $(element).fadeOut();
+    } 
+};
+
 function AppViewModel() {
     var self = this;
     var map, infoWindow;
@@ -11,6 +24,7 @@ function AppViewModel() {
     self.names = ko.observableArray();
     self.addresses = ko.observableArray();
     self.prices = ko.observableArray();
+    self.filterItemLength = ko.observable();
     var myLatLng = { lat: 51.283947, lng: -1.080868 };
 
     function initMap() {
@@ -22,6 +36,7 @@ function AppViewModel() {
             self.addresses([]);
             self.prices([]);
             $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function(data, status) {
+                if (status === 'success'){
                 var cityRestaurants = data.nearby_restaurants;
                 for (i = 0; i < cityRestaurants.length; i++) {
                     var addressLat = cityRestaurants[i].restaurant.location.latitude;
@@ -64,6 +79,9 @@ function AppViewModel() {
                 self.filteredList(self.restaurant());
                 self.restaurantArrayFix(self.restaurant());
                 showListings();
+                } else {
+                    alert ('We could not fetch data. Please try again later!');
+                }
             })
         }
 
@@ -84,11 +102,8 @@ function AppViewModel() {
 
     self.showRestaurant = function(restaurant) {
         var clickedRestaurant = restaurant.addresses;
-        console.log(clickedRestaurant);
-        console.log('--------------------');
         for (var key in self.restaurant()) {
             if (clickedRestaurant === self.restaurant()[key].addresses) {
-                console.log(self.restaurant()[key].markers.position);
                 map.panTo(self.restaurant()[key].markers.position);
                 //map.setZoom(14);
                 infoWindow.setContent('<div><b>Restaurant name:</b> ' + self.restaurant()[key].names + '</div><div><b>Address:</b> ' + self.restaurant()[key].addresses + '</div><div><b>Cuisine:</b><br>' + self.restaurant()[key].cuisines + '</div><div><b>Price range: </b>' + self.restaurant()[key].prices + '</div>');
@@ -115,15 +130,16 @@ function AppViewModel() {
     self.filter = ko.computed(function() {
         var filter = self.filterItem().toLowerCase();
         var restaurantArray = self.restaurant();
+        self.filterItemLength(restaurantArray.length);
         if (!filter) {
             return self.markers();
         } else {
             self.filteredList([]);
             var bounds = new google.maps.LatLngBounds();
             for (var i = 0, len = restaurantArray.length; i < len; i++) {
+                self.filterItemLength(len)
                 if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
                     tick = false;
-                    console.log(restaurantArray[i].names)
                     restaurantArray[i].markers.setMap(map);
                     self.filteredList.push(restaurantArray[i]);
                     bounds.extend(restaurantArray[i].locations);
@@ -133,7 +149,6 @@ function AppViewModel() {
                         restaurantArray[i].markers.setAnimation(google.maps.Animation.DROP);
                         tick = true;
                     }
-                    console.log(self.restaurantArrayFix());
                 } else {
                     restaurantArray[i].markers.setMap(null);
                 }
@@ -158,33 +173,6 @@ function AppViewModel() {
         infoWindow.open(map, marker);
     }
 
-
-
-
-    /* self.filter = ko.computed(function () {
-        var filter = self.filterItem().toLowerCase();
-        var array = self.restaurant();
-        if (!filter) {
-            return self.markers();
-        } else {
-            self.filteredList([]);
-            var bounds = new google.maps.LatLngBounds();
-            for (var i = 0; i < array.length; i++) {
-                if (array[i].names.toLowerCase().indexOf(filter) != -1) {
-                    self.filteredList.push(self.restaurant()[i].names);
-                    self.filteredList()[i].markers.setMap(map);
-                    bounds.extend(self.filteredList()[i].locations);
-                } else {
-                    self.filteredList()[i].markers.setMap(null);
-                }
-                map.fitBounds(bounds);
-                map.setZoom(14);
-            }
-        }
-    }) */
-
-    console.log(self.restaurant());
-
     function hideMarkers(markers) {
         for (var i = 0; i < markers.length; i++) {
             markers[i].setMap(null);
@@ -207,69 +195,17 @@ function AppViewModel() {
 
 ko.applyBindings(new AppViewModel());
 
+var moved = false;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*      var search = document.getElementById('search');
-    var input = document.getElementById('places-search');
-    var bounds = new google.maps.LatLngBounds();
-    var options = {
-        types: ['(regions)'],
-        componentRestrictions: { country: "uk" }
-    };
-
-     var autocomplete = new google.maps.places.Autocomplete(input, options);
-    // Bind the map's bounds (viewport) property to the autocomplete object,
-    // so that the autocomplete requests use the current map bounds for the
-    // bounds option in the request.
-    autocomplete.bindTo('bounds', map);
-
-    autocomplete.addListener('place_changed', function() {
-        //infowindow.close();
-        self.hideMarkers(self.markers());
-        self.marker.setVisible(false);
-        self.markers([]);
-        var place = autocomplete.getPlace();
-        if (!place.geometry) {
-            // User entered the name of a Place that was not suggested and
-            // pressed the Enter key, or the Place Details request failed.
-            window.alert("No details available for input: '" + place.name + "'");
-            return;
+$(function () {
+    $('.entypo-menu').on('click', function () {
+        if (!moved) {
+            $('#search').css({ "-webkit-transform": "translateX(0px)" });
+            moved = true;
         }
-
-        // If the place has a geometry, then present it on a map.
-        if (place.geometry.viewport) {
-            map.fitBounds(place.geometry.viewport);
-        } else {
-            map.setCenter(place.geometry.location);
-            map.setZoom(17); // Why 17? Because it looks good.
+        else {
+            $('#search').css({ "-webkit-transform": "translateX(-160px)" });
+            moved = false;
         }
-        self.marker.setPosition(place.geometry.location);
-        self.markers().push(marker);
-
-        self.marker.addListener('click', function() {
-            populateInfoWindow(this, largeInfoWindow);
-        })
-        myLatLng.lat = place.geometry.location.lat();
-        myLatLng.lng = place.geometry.location.lng();
-        self.marker.setVisible(true);
-        getRestaurants();
-    }) */
+    })
+})
