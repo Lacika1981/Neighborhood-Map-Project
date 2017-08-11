@@ -198,7 +198,7 @@ ko.applyBindings(new AppViewModel());
 var moved = false;
 
 $(function () {
-    $('.entypo-menu').on('click', function () {
+    $('#menu').on('click', function () {
         if (!moved) {
             $('#search').css({ "-webkit-transform": "translateX(0px)" });
             moved = true;
