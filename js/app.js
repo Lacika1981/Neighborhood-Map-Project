@@ -1,3 +1,5 @@
+//custom binding to fadeIn and fadeOut the reset button - from learn.knockoutjs.com
+
 ko.bindingHandlers.fadeVisible = {
     init: function(element, valueAccessor) {
         // Start visible/invisible according to initial value
@@ -14,21 +16,22 @@ ko.bindingHandlers.fadeVisible = {
 function AppViewModel() {
     var self = this;
     var map, infoWindow;
-    self.restaurantArrayFix = ko.observableArray();
-    self.filterItem = ko.observable('');
-    self.filteredList = ko.observableArray();
-    self.restaurant = ko.observableArray();
-    self.markers = ko.observableArray();
-    self.locations = ko.observableArray();
-    self.cuisines = ko.observableArray();
-    self.names = ko.observableArray();
-    self.addresses = ko.observableArray();
-    self.prices = ko.observableArray();
-    self.filterItemLength = ko.observable();
+    self.restaurantArrayFix = ko.observableArray(); // it holds a copy of the initial Array with the restaurants
+    self.filterItem = ko.observable(''); // it holds the search field fileds' characters
+    self.filteredList = ko.observableArray(); // array with the restaurants
+    self.restaurant = ko.observableArray(); // restaurant arrays - only used to pass to filteredList and restaurantArrayFix
+    self.markers = ko.observableArray(); // markers' array
+    self.locations = ko.observableArray(); // holds the lat and lng of each restaurant
+    self.cuisines = ko.observableArray(); // not in use
+    self.names = ko.observableArray(); // not in use
+    self.addresses = ko.observableArray(); // not in use
+    self.prices = ko.observableArray(); // not in use
+    self.filterItemLength = ko.observable(); // holds the value of the length of the restaurantArray
     var myLatLng = { lat: 51.283947, lng: -1.080868 };
 
     function initMap() {
         var getRestaurants = function() {
+            // empty each array before pushing data
             self.markers([]);
             self.locations([]);
             self.cuisines([]);
@@ -36,6 +39,7 @@ function AppViewModel() {
             self.addresses([]);
             self.prices([]);
             $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function(data, status) {
+                // error handling - if success
                 if (status === 'success'){
                 var cityRestaurants = data.nearby_restaurants;
                 for (i = 0; i < cityRestaurants.length; i++) {
@@ -64,8 +68,8 @@ function AppViewModel() {
 
                     self.marker.addListener('click', function () {
                         populateInfoWindow(this, infoWindow);
-                    })
-
+                    });
+                    // pushing data to the restaurant array
                     self.restaurant.push({
                         cuisines: cuisine,
                         names: name,
@@ -73,24 +77,26 @@ function AppViewModel() {
                         prices: price,
                         locations: self.locations(),
                         markers: self.marker
-                    })
+                    });
                     self.markers.push(self.marker);
                 }
-                self.filteredList(self.restaurant());
-                self.restaurantArrayFix(self.restaurant());
+                self.filteredList(self.restaurant()); // it holds the restaurant Array for filtering
+                self.restaurantArrayFix(self.restaurant()); // it holds the restaurant Array for filtering - fix values, no changes
                 showListings();
+                // error handling - if fails
                 } else {
                     alert ('We could not fetch data. Please try again later!');
                 }
-            })
-        }
+            });
+        };
 
+        // infoWindow
         infoWindow = new google.maps.InfoWindow();
         map = new google.maps.Map(document.getElementById('map'), {
             center: myLatLng,
             mapTypeControl: false
         });
-        getRestaurants();
+        getRestaurants(); // calls the getRestaurants method
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(search);
 
         var marker = new google.maps.Marker({
@@ -100,11 +106,12 @@ function AppViewModel() {
 
     }
 
+    // shows the restaurants on the map
     self.showRestaurant = function(restaurant) {
         var clickedRestaurant = restaurant.addresses;
         for (var key in self.restaurant()) {
             if (clickedRestaurant === self.restaurant()[key].addresses) {
-                map.panTo(self.restaurant()[key].markers.position);
+                map.panTo(self.restaurant()[key].markers.position); // centering the markers on the map
                 //map.setZoom(14);
                 infoWindow.setContent('<div><b>Restaurant name:</b> ' + self.restaurant()[key].names + '</div><div><b>Address:</b> ' + self.restaurant()[key].addresses + '</div><div><b>Cuisine:</b><br>' + self.restaurant()[key].cuisines + '</div><div><b>Price range: </b>' + self.restaurant()[key].prices + '</div>');
                 infoWindow.open(map, self.restaurant()[key].markers);
@@ -112,19 +119,16 @@ function AppViewModel() {
         }
     };
 
+    // called by the reset to set everything to the initial state
     self.clear = function() {
         showListings();
         infoWindow.close(map);
         self.filterItem('');
-        self.filteredList(self.restaurantArrayFix());
-    }
+        self.filteredList(self.restaurantArrayFix()); // updates the filteredList calling the restaurantArrayFix array
+    };
 
-    self.hideMarkers = function(markers) {
-        for (var i = 0; i < markers.length; i++) {
-            markers[i].setMap(null);
-        }
-    }
-
+    
+    // filtering the list
     var tick = false;
 
     self.filter = ko.computed(function() {
@@ -134,14 +138,14 @@ function AppViewModel() {
         if (!filter) {
             return self.markers();
         } else {
-            self.filteredList([]);
+            self.filteredList([]); // empty the array before pushing the name of restaurants what contains the typed characters
             var bounds = new google.maps.LatLngBounds();
             for (var i = 0, len = restaurantArray.length; i < len; i++) {
-                self.filterItemLength(len)
+                self.filterItemLength(len);
                 if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
-                    tick = false;
+                    
                     restaurantArray[i].markers.setMap(map);
-                    self.filteredList.push(restaurantArray[i]);
+                    self.filteredList.push(restaurantArray[i]); // adding the restaurant array to update the menu with the available restaurants
                     bounds.extend(restaurantArray[i].locations);
                     map.fitBounds(bounds);
                     map.setZoom(14);
@@ -154,7 +158,7 @@ function AppViewModel() {
                 }
             }
         }
-    })
+    });
 
     function populateInfoWindow(marker, infoWindow) {
         // Check to make sure the infowindow is not already opened on this marker.
@@ -173,12 +177,7 @@ function AppViewModel() {
         infoWindow.open(map, marker);
     }
 
-    function hideMarkers(markers) {
-        for (var i = 0; i < markers.length; i++) {
-            markers[i].setMap(null);
-        }
-    }
-
+    // places the markers on the map
     function showListings() {
         var bounds = new google.maps.LatLngBounds();
         // Extend the boundaries of the map for each marker and display the marker
@@ -188,24 +187,27 @@ function AppViewModel() {
         }
         map.fitBounds(bounds);
         map.setZoom(14);
-    };
+    }
 
     initMap();
 }
 
 ko.applyBindings(new AppViewModel());
 
+// menu control
 var moved = false;
 
 $(function () {
     $('#menu').on('click', function () {
         if (!moved) {
             $('#search').css({ "-webkit-transform": "translateX(0px)" });
+            $('#menu').css({ "-webkit-transform": "translateX(0px)" });
             moved = true;
         }
         else {
             $('#search').css({ "-webkit-transform": "translateX(-160px)" });
+            $('#menu').css({ "-webkit-transform": "translateX(-160px)" });
             moved = false;
         }
-    })
-})
+    });
+});
