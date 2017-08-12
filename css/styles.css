@@ -62,7 +62,7 @@ input {
 
 p.scrollText {
         display: none;
-    }
+}
 
 p {
     font-size: 12px;
@@ -77,18 +77,6 @@ ul {
     width: 100vw;
     height: 100vh;
     position: absolute;
-}
-
-/*remove compass*/
-
-.gm-style .gm-compass-icon,
-.gmnoprint,
-.gm-iv-address {
-    display: none;
-}
-
-.boxes {
-    display: flex;
 }
 
 input::placeholder {

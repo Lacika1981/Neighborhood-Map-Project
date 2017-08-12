@@ -22,10 +22,6 @@ function AppViewModel() {
     self.restaurant = ko.observableArray(); // restaurant arrays - only used to pass to filteredList and restaurantArrayFix
     self.markers = ko.observableArray(); // markers' array
     self.locations = ko.observableArray(); // holds the lat and lng of each restaurant
-    self.cuisines = ko.observableArray(); // not in use
-    self.names = ko.observableArray(); // not in use
-    self.addresses = ko.observableArray(); // not in use
-    self.prices = ko.observableArray(); // not in use
     self.filterItemLength = ko.observable(); // holds the value of the length of the restaurantArray
     var myLatLng = { lat: 51.283947, lng: -1.080868 };
 
@@ -34,10 +30,6 @@ function AppViewModel() {
             // empty each array before pushing data
             self.markers([]);
             self.locations([]);
-            self.cuisines([]);
-            self.names([]);
-            self.addresses([]);
-            self.prices([]);
             $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function(data, status) {
                 // error handling - if success
                 if (status === 'success'){
@@ -67,7 +59,7 @@ function AppViewModel() {
                     });
 
                     self.marker.addListener('click', function () {
-                        populateInfoWindow(this, infoWindow);
+                        self.populateInfoWindow(this, infoWindow);
                     });
                     // pushing data to the restaurant array
                     self.restaurant.push({
@@ -82,7 +74,7 @@ function AppViewModel() {
                 }
                 self.filteredList(self.restaurant()); // it holds the restaurant Array for filtering
                 self.restaurantArrayFix(self.restaurant()); // it holds the restaurant Array for filtering - fix values, no changes
-                showListings();
+                self.showListings();
                 // error handling - if fails
                 } else {
                     alert ('We could not fetch data. Please try again later!');
@@ -121,7 +113,7 @@ function AppViewModel() {
 
     // called by the reset to set everything to the initial state
     self.clear = function() {
-        showListings();
+        self.showListings();
         infoWindow.close(map);
         self.filterItem('');
         self.filteredList(self.restaurantArrayFix()); // updates the filteredList calling the restaurantArrayFix array
@@ -138,12 +130,15 @@ function AppViewModel() {
         if (!filter) {
             return self.markers();
         } else {
-            self.filteredList([]); // empty the array before pushing the name of restaurants what contains the typed characters
+            self.filteredList([]); // empty the array before pushing the restaurants what contains the typed characters
             var bounds = new google.maps.LatLngBounds();
-            for (var i = 0, len = restaurantArray.length; i < len; i++) {
-                self.filterItemLength(len);
-                if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
-                    
+            for (var i = 0, len = self.filterItemLength(); i < len; i++) {
+                if (len > 0){
+                    tick = false; 
+                } else {
+                    tick = true;
+                }
+                if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {                   
                     restaurantArray[i].markers.setMap(map);
                     self.filteredList.push(restaurantArray[i]); // adding the restaurant array to update the menu with the available restaurants
                     bounds.extend(restaurantArray[i].locations);
@@ -160,7 +155,7 @@ function AppViewModel() {
         }
     });
 
-    function populateInfoWindow(marker, infoWindow) {
+    self.populateInfoWindow = function(marker, infoWindow) {
         // Check to make sure the infowindow is not already opened on this marker.
         if (infoWindow.marker != marker) {
             // Clear the infowindow content to give the streetview time to load.
@@ -178,7 +173,7 @@ function AppViewModel() {
     }
 
     // places the markers on the map
-    function showListings() {
+    self.showListings = function() {
         var bounds = new google.maps.LatLngBounds();
         // Extend the boundaries of the map for each marker and display the marker
         for (var i = 0; i < self.markers().length; i++) {
