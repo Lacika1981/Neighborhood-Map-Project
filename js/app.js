@@ -1,16 +1,16 @@
 //custom binding to fadeIn and fadeOut the reset button - from learn.knockoutjs.com
 
 ko.bindingHandlers.fadeVisible = {
-    init: function(element, valueAccessor) {
+    init: function (element, valueAccessor) {
         // Start visible/invisible according to initial value
         var shouldDisplay = valueAccessor();
         $(element).hide(shouldDisplay);
     },
-    update: function(element, valueAccessor) {
+    update: function (element, valueAccessor) {
         // On update, fade in/out
         var shouldDisplay = valueAccessor();
         shouldDisplay ? $(element).fadeIn() : $(element).fadeOut();
-    } 
+    }
 };
 
 function AppViewModel() {
@@ -23,63 +23,64 @@ function AppViewModel() {
     self.markers = ko.observableArray(); // markers' array
     self.locations = ko.observableArray(); // holds the lat and lng of each restaurant
     self.filterItemLength = ko.observable(); // holds the value of the length of the restaurantArray
-    var myLatLng = { lat: 51.283947, lng: -1.080868 };
+    var myLatLng = { lat: 51.517023, lng: -0.129071 };
 
     function initMap() {
-        var getRestaurants = function() {
+        var getRestaurants = function () {
             // empty each array before pushing data
             self.markers([]);
             self.locations([]);
-            $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function(data, status) {
+            $.get("https://developers.zomato.com/api/v2.1/geocode?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function (data, status) {
                 // error handling - if success
-                if (status === 'success'){
-                var cityRestaurants = data.nearby_restaurants;
-                for (i = 0; i < cityRestaurants.length; i++) {
-                    var addressLat = cityRestaurants[i].restaurant.location.latitude;
-                    var addressLon = cityRestaurants[i].restaurant.location.longitude;
-                    if (addressLat != 0 || addressLon != 0) {
+                if (status === 'success') {
+                    var cityRestaurants = data.nearby_restaurants;
+                    for (i = 0; i < cityRestaurants.length; i++) {
+                        var addressLat = cityRestaurants[i].restaurant.location.latitude;
+                        var addressLon = cityRestaurants[i].restaurant.location.longitude;
+                        console.log(addressLat, addressLon);
                         self.locations().lat = parseFloat(addressLat);
                         self.locations().lng = parseFloat(addressLon);
+                        var name = cityRestaurants[i].restaurant.name;
+                        var cuisine = cityRestaurants[i].restaurant.cuisines;
+                        var address = cityRestaurants[i].restaurant.location.address;
+                        var price = cityRestaurants[i].restaurant.price_range;
+
+                        self.marker = new google.maps.Marker({
+                            map: map,
+                            position: self.locations(),
+                            title: name,
+                            address: address,
+                            cuisine: cuisine,
+                            price: price,
+                            animation: google.maps.Animation.DROP,
+                            //icon: defaultIcon,
+                            id: i
+                        });
+
+                        self.marker.addListener('click', x);
+                        // pushing data to the restaurant array
+                        self.restaurant.push({
+                            cuisines: cuisine,
+                            names: name,
+                            addresses: address,
+                            prices: price,
+                            locations: self.locations(),
+                            markers: self.marker
+                        });
+                        self.markers.push(self.marker);
                     }
-                    var name = cityRestaurants[i].restaurant.name;
-                    var cuisine = cityRestaurants[i].restaurant.cuisines;
-                    var address = cityRestaurants[i].restaurant.location.address;
-                    var price = cityRestaurants[i].restaurant.price_range;
-
-                    self.marker = new google.maps.Marker({
-                        map: map,
-                        position: self.locations(),
-                        title: name,
-                        address: address,
-                        cuisine: cuisine,
-                        price: price,
-                        animation: google.maps.Animation.DROP,
-                        //icon: defaultIcon,
-                        id: i
-                    });
-
-                    self.marker.addListener('click', function () {
-                        self.populateInfoWindow(this, infoWindow);
-                    });
-                    // pushing data to the restaurant array
-                    self.restaurant.push({
-                        cuisines: cuisine,
-                        names: name,
-                        addresses: address,
-                        prices: price,
-                        locations: self.locations(),
-                        markers: self.marker
-                    });
-                    self.markers.push(self.marker);
-                }
-                self.filteredList(self.restaurant()); // it holds the restaurant Array for filtering
-                self.restaurantArrayFix(self.restaurant()); // it holds the restaurant Array for filtering - fix values, no changes
-                self.showListings();
-                // error handling - if fails
+                    self.filteredList(self.restaurant()); // it holds the restaurant Array for filtering
+                    self.restaurantArrayFix(self.restaurant()); // it holds the restaurant Array for filtering - fix values, no changes
+                    self.showListings();
+                    // error handling - if fails
                 } else {
-                    alert ('We could not fetch data. Please try again later!');
+                    alert('We could not fetch data. Please try again later!');
                 }
             });
+        };
+
+        var x = function () {
+            self.populateInfoWindow(this, infoWindow);
         };
 
         // infoWindow
@@ -99,7 +100,7 @@ function AppViewModel() {
     }
 
     // shows the restaurants on the map
-    self.showRestaurant = function(restaurant) {
+    self.showRestaurant = function (restaurant) {
         var clickedRestaurant = restaurant.addresses;
         for (var key in self.restaurant()) {
             if (clickedRestaurant === self.restaurant()[key].addresses) {
@@ -112,18 +113,18 @@ function AppViewModel() {
     };
 
     // called by the reset to set everything to the initial state
-    self.clear = function() {
+    self.clear = function () {
         self.showListings();
         infoWindow.close(map);
         self.filterItem('');
         self.filteredList(self.restaurantArrayFix()); // updates the filteredList calling the restaurantArrayFix array
     };
 
-    
+
     // filtering the list
     var tick = false;
 
-    self.filter = ko.computed(function() {
+    self.filter = ko.computed(function () {
         var filter = self.filterItem().toLowerCase();
         var restaurantArray = self.restaurant();
         self.filterItemLength(restaurantArray.length);
@@ -134,13 +135,13 @@ function AppViewModel() {
             var bounds = new google.maps.LatLngBounds();
             for (var i = 0, len = self.filterItemLength(); i < len; i++) {
                 tick = false;
-                if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {                   
+                if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
                     restaurantArray[i].markers.setMap(map);
                     self.filteredList.push(restaurantArray[i]); // adding the restaurant array to update the menu with the available restaurants
                     bounds.extend(restaurantArray[i].locations);
                     map.fitBounds(bounds);
                     map.setZoom(14);
-                    if (!tick){
+                    if (!tick) {
                         restaurantArray[i].markers.setAnimation(google.maps.Animation.DROP);
                         tick = true;
                     }
@@ -151,7 +152,7 @@ function AppViewModel() {
         }
     });
 
-    self.populateInfoWindow = function(marker, infoWindow) {
+    self.populateInfoWindow = function (marker, infoWindow) {
         // Check to make sure the infowindow is not already opened on this marker.
         if (infoWindow.marker != marker) {
             // Clear the infowindow content to give the streetview time to load.
@@ -166,10 +167,10 @@ function AppViewModel() {
 
         }
         infoWindow.open(map, marker);
-    }
+    };
 
     // places the markers on the map
-    self.showListings = function() {
+    self.showListings = function () {
         var bounds = new google.maps.LatLngBounds();
         // Extend the boundaries of the map for each marker and display the marker
         for (var i = 0; i < self.markers().length; i++) {
@@ -178,7 +179,7 @@ function AppViewModel() {
         }
         map.fitBounds(bounds);
         map.setZoom(14);
-    }
+    };
 
     initMap();
 }
