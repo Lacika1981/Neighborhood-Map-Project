@@ -133,11 +133,7 @@ function AppViewModel() {
             self.filteredList([]); // empty the array before pushing the restaurants what contains the typed characters
             var bounds = new google.maps.LatLngBounds();
             for (var i = 0, len = self.filterItemLength(); i < len; i++) {
-                if (len > 0){
-                    tick = false; 
-                } else {
-                    tick = true;
-                }
+                tick = false;
                 if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {                   
                     restaurantArray[i].markers.setMap(map);
                     self.filteredList.push(restaurantArray[i]); // adding the restaurant array to update the menu with the available restaurants
