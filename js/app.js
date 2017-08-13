@@ -88,7 +88,7 @@ function initMap() {
         map: map,
         animation: google.maps.Animation.DROP
     });
-    
+
     ko.applyBindings(new AppViewModel());
 }
 
@@ -119,6 +119,13 @@ var showListings = function () {
     }
     map.fitBounds(bounds);
     map.setZoom(16);
+};
+
+// stop bouncing the marker
+function stopAnimation(marker) {
+    setTimeout(function () {
+        marker.setAnimation(null);
+    }, 1500);
 };
 
 function AppViewModel() {
@@ -177,6 +184,8 @@ function AppViewModel() {
         var clickedRestaurant = restaurant.addresses;
         for (var key in self.restaurant()) {
             if (clickedRestaurant === self.restaurant()[key].addresses) {
+                self.restaurant()[key].markers.setAnimation(google.maps.Animation.BOUNCE);
+                stopAnimation(self.restaurant()[key].markers); // calling the stopAnimation function to stop the marker bouncing
                 map.panTo(self.restaurant()[key].markers.position); // centering the markers on the map
                 map.setZoom(18);
                 infoWindow.setContent('<div><b>Restaurant name:</b> ' + self.restaurant()[key].names + '</div><div><b>Address:</b> ' + self.restaurant()[key].addresses + '</div><div><b>Cuisine:</b><br>' + self.restaurant()[key].cuisines + '</div><div><b>Price range: </b>' + self.restaurant()[key].prices + '</div>');
