@@ -14,7 +14,7 @@
         <div id="menu"></div>
         <div id="search">
             <div class="title">
-                <h2>Restaurants</h2>
+                <h1>Restaurants</h1>
                 <p class="scrollText">(Scroll the menu)</p>
             </div>
             <ul data-bind="foreach: filteredList">
@@ -33,7 +33,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
     <script src="js/knockout-3.4.2.js"></script>
-    <script async src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyAw2wf3AfgVr3ux3xWaVkrccqjpzbDdF1E&v=3&callback=initMap"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyAw2wf3AfgVr3ux3xWaVkrccqjpzbDdF1E&v=3&callback=initMap&onerror=mapInitError()"></script>
     <script src="js/app.js"></script>
 </body>
 

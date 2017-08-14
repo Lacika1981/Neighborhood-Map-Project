@@ -1,18 +1,3 @@
-//custom binding to fadeIn and fadeOut the reset button - from learn.knockoutjs.com
-
-ko.bindingHandlers.fadeVisible = {
-    init: function (element, valueAccessor) {
-        // Start visible/invisible according to initial value
-        var shouldDisplay = valueAccessor();
-        $(element).hide(shouldDisplay);
-    },
-    update: function (element, valueAccessor) {
-        // On update, fade in/out
-        var shouldDisplay = valueAccessor();
-        shouldDisplay ? $(element).fadeIn() : $(element).fadeOut();
-    }
-};
-
 var map, infoWindow;
 var restaurant = [];
 var markers = [];
@@ -20,12 +5,11 @@ var myLatLng = { lat: 51.517023, lng: -0.129071 };
 var locations = [];
 
 function initMap() {
-    var getRestaurants = function () {
-        $.get("https://developers.zomato.com/api/v2.1/search?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc", function (data, status) {
-            // error handling - if success
-
-            if (status === 'success') {
-                var cityRestaurants = data.restaurants;
+    var getRestaurants = function(){
+        $.ajax({
+            url: "https://developers.zomato.com/api/v2.1/search?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc"
+        }).done(function(data){
+            var cityRestaurants = data.restaurants;
                 for (i = 0; i < cityRestaurants.length; i++) {
                     var addressLat = cityRestaurants[i].restaurant.location.latitude;
                     var addressLon = cityRestaurants[i].restaurant.location.longitude;
@@ -64,15 +48,15 @@ function initMap() {
                 /* self.filteredList(self.restaurant()); // it holds the restaurant Array for filtering
                 self.restaurantArrayFix(self.restaurant()); // it holds the restaurant Array for filtering - fix values, no changes */
                 showListings();
-                // error handling - if fails
-            } else {
-                alert('We could not fetch data. Please try again later!');
-            }
+        }).fail(function(){
+            alert("Could not fetch data. Please refresh your browser!");
         });
     };
 
     var listenerFunction = function () {
-        self.populateInfoWindow(this, infoWindow);
+        populateInfoWindow(this, infoWindow);
+        this.setAnimation(google.maps.Animation.BOUNCE);
+        stopAnimation(this);
     };
 
     // infoWindow
@@ -125,18 +109,21 @@ var showListings = function () {
 function stopAnimation(marker) {
     setTimeout(function () {
         marker.setAnimation(null);
-    }, 1500);
-};
+    }, 1450);
+}
+
+var mapInitError = function(){
+    console.log('test');
+}
 
 function AppViewModel() {
     var self = this;
     self.restaurantArrayFix = ko.observableArray(restaurant); // it holds a copy of the initial Array with the restaurants
     self.filterItem = ko.observable(''); // it holds the search field's characters
-    self.restaurant = ko.observableArray(restaurant); // restaurant arrays - only used to pass to filteredList and restaurantArrayFix
-    self.filteredList = ko.observableArray(); // array with the restaurants
+    self.restaurant = ko.observableArray(restaurant); // restaurant array
+    self.filteredList = ko.observableArray(restaurant); // array with the restaurants
     self.locations = ko.observableArray(locations); // holds the lat and lng of each restaurant
     self.filterItemLength = ko.observable(); // holds the value of the length of the restaurantArray
-    console.log(self.restaurant());
 
     // called by the reset to set everything to the initial state
     self.clear = function () {
@@ -146,6 +133,19 @@ function AppViewModel() {
         self.filteredList(self.restaurantArrayFix()); // updates the filteredList calling the restaurantArrayFix array
     };
 
+    //custom binding to fadeIn and fadeOut the reset button - from learn.knockoutjs.com
+    ko.bindingHandlers.fadeVisible = {
+        init: function (element, valueAccessor) {
+            // Start visible/invisible according to initial value
+            var shouldDisplay = valueAccessor();
+            $(element).hide(shouldDisplay);
+        },
+        update: function (element, valueAccessor) {
+            // On update, fade in/out
+            var shouldDisplay = valueAccessor();
+            shouldDisplay ? $(element).fadeIn() : $(element).fadeOut();
+        }
+    };
 
     // filtering the list
     var tick = false;
@@ -160,7 +160,6 @@ function AppViewModel() {
             self.filteredList([]); // empty the array before pushing the restaurants what contains the typed characters
             var bounds = new google.maps.LatLngBounds();
             for (var i = 0, len = self.filterItemLength(); i < len; i++) {
-                console.log(self.filterItemLength());
                 tick = false;
                 if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
                     restaurantArray[i].markers.setMap(map);
@@ -178,6 +177,7 @@ function AppViewModel() {
             }
         }
     });
+
 
     // shows the restaurants on the map
     self.showRestaurant = function (restaurant) {
