@@ -74,7 +74,288 @@ function initMap() {
     infoWindow = new google.maps.InfoWindow();
     map = new google.maps.Map(document.getElementById('map'), {
         center: myLatLng,
-        mapTypeControl: false
+        mapTypeControl: false,
+        styles: 
+        [
+            {
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#ebe3cd"
+                }
+              ]
+            },
+            {
+              "elementType": "geometry.fill",
+              "stylers": [
+                {
+                  "weight": 1
+                }
+              ]
+            },
+            {
+              "elementType": "labels.text.fill",
+              "stylers": [
+                {
+                  "color": "#523735"
+                }
+              ]
+            },
+            {
+              "elementType": "labels.text.stroke",
+              "stylers": [
+                {
+                  "color": "#f5f1e6"
+                }
+              ]
+            },
+            {
+              "featureType": "administrative",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                {
+                  "color": "#c9b2a6"
+                }
+              ]
+            },
+            {
+              "featureType": "administrative.land_parcel",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                {
+                  "color": "#dcd2be"
+                }
+              ]
+            },
+            {
+              "featureType": "administrative.land_parcel",
+              "elementType": "labels.text.fill",
+              "stylers": [
+                {
+                  "color": "#ae9e90"
+                }
+              ]
+            },
+            {
+              "featureType": "landscape.natural",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#dfd2ae"
+                }
+              ]
+            },
+            {
+              "featureType": "poi",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#dfd2ae"
+                }
+              ]
+            },
+            {
+              "featureType": "poi",
+              "elementType": "labels.text.fill",
+              "stylers": [
+                {
+                  "color": "#93817c"
+                }
+              ]
+            },
+            {
+              "featureType": "poi.attraction",
+              "elementType": "geometry.fill",
+              "stylers": [
+                {
+                  "visibility": "off"
+                }
+              ]
+            },
+            {
+              "featureType": "poi.park",
+              "elementType": "geometry.fill",
+              "stylers": [
+                {
+                  "color": "#a5b076"
+                }
+              ]
+            },
+            {
+              "featureType": "poi.park",
+              "elementType": "labels.text.fill",
+              "stylers": [
+                {
+                  "color": "#447530"
+                }
+              ]
+            },
+            {
+              "featureType": "road",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#f5f1e6"
+                }
+              ]
+            },
+            {
+              "featureType": "road.arterial",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#fdfcf8"
+                }
+              ]
+            },
+            {
+              "featureType": "road.arterial",
+              "elementType": "geometry.fill",
+              "stylers": [
+                {
+                  "color": "#747678"
+                },
+                {
+                  "weight": 2
+                }
+              ]
+            },
+            {
+              "featureType": "road.highway",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#f8c967"
+                }
+              ]
+            },
+            {
+              "featureType": "road.highway",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                {
+                  "color": "#e9bc62"
+                }
+              ]
+            },
+            {
+              "featureType": "road.highway.controlled_access",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#e98d58"
+                }
+              ]
+            },
+            {
+              "featureType": "road.highway.controlled_access",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                {
+                  "color": "#db8555"
+                }
+              ]
+            },
+            {
+              "featureType": "road.local",
+              "elementType": "geometry.fill",
+              "stylers": [
+                {
+                  "color": "#747678"
+                },
+                {
+                  "weight": 4.5
+                }
+              ]
+            },
+            {
+              "featureType": "road.local",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                {
+                  "weight": 6.5
+                }
+              ]
+            },
+            {
+              "featureType": "road.local",
+              "elementType": "labels.text",
+              "stylers": [
+                {
+                  "color": "#747678"
+                }
+              ]
+            },
+            {
+              "featureType": "road.local",
+              "elementType": "labels.text.fill",
+              "stylers": [
+                {
+                  "color": "#feee0a"
+                }
+              ]
+            },
+            {
+              "featureType": "transit.line",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#dfd2ae"
+                }
+              ]
+            },
+            {
+              "featureType": "transit.line",
+              "elementType": "labels.text.fill",
+              "stylers": [
+                {
+                  "color": "#8f7d77"
+                }
+              ]
+            },
+            {
+              "featureType": "transit.line",
+              "elementType": "labels.text.stroke",
+              "stylers": [
+                {
+                  "color": "#ebe3cd"
+                }
+              ]
+            },
+            {
+              "featureType": "transit.station",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#dfd2ae"
+                }
+              ]
+            },
+            {
+              "featureType": "water",
+              "elementType": "geometry.fill",
+              "stylers": [
+                {
+                  "color": "#24e2e5"
+                },
+                {
+                  "saturation": -45
+                },
+                {
+                  "lightness": -40
+                }
+              ]
+            },
+            {
+              "featureType": "water",
+              "elementType": "labels.text.fill",
+              "stylers": [
+                {
+                  "color": "#92998d"
+                }
+              ]
+            }
+          ]
     });
     getRestaurants(); // calls the getRestaurants method
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(search);
@@ -113,7 +394,7 @@ var showListings = function () {
         bounds.extend(markers[i].position);
     }
     map.fitBounds(bounds);
-    map.setZoom(16);
+    map.setZoom(17);
 };
 
 // stop bouncing the marker
@@ -158,9 +439,6 @@ function AppViewModel() {
         }
     };
 
-    // filtering the list
-    var tick = false;
-
     self.filter = ko.computed(function () {
         var filter = self.filterItem().toLowerCase();
         var restaurantArray = self.restaurant();
@@ -171,17 +449,12 @@ function AppViewModel() {
             self.filteredList([]); // empty the array before pushing the restaurants what contains the typed characters
             var bounds = new google.maps.LatLngBounds();
             for (var i = 0, len = self.filterItemLength(); i < len; i++) {
-                tick = false;
                 if (restaurantArray[i].names.toLowerCase().indexOf(filter) != -1) {
                     restaurantArray[i].markers.setMap(map);
                     self.filteredList.push(restaurantArray[i]); // adding the restaurant array to update the menu with the available restaurants
                     bounds.extend(restaurantArray[i].locations);
                     map.fitBounds(bounds);
                     map.setZoom(17);
-                    if (!tick) {
-                        restaurantArray[i].markers.setAnimation(google.maps.Animation.DROP);
-                        tick = true;
-                    }
                 } else {
                     restaurantArray[i].markers.setMap(null);
                 }
