@@ -4,10 +4,20 @@ var markers = [];
 var myLatLng = { lat: 51.517023, lng: -0.129071 };
 var locations = [];
 
-function initMap() {
+// Get the maximum restaurant information back
+var url = [
+    "https://developers.zomato.com/api/v2.1/search?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&start=0&count=20&apikey=c5c5699a30922c7c7d4b8500982d27fc",
+    "https://developers.zomato.com/api/v2.1/search?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&start=20&count=20&apikey=c5c5699a30922c7c7d4b8500982d27fc",
+    "https://developers.zomato.com/api/v2.1/search?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&start=40&count=20&apikey=c5c5699a30922c7c7d4b8500982d27fc",
+    "https://developers.zomato.com/api/v2.1/search?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&start=60&count=20&apikey=c5c5699a30922c7c7d4b8500982d27fc",
+    "https://developers.zomato.com/api/v2.1/search?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&start=80&count=20&apikey=c5c5699a30922c7c7d4b8500982d27fc"
+]
+
+function initMap() {    
     var getRestaurants = function(){
+        for (var i = 0; i < url.length; i++){
         $.ajax({
-            url: "https://developers.zomato.com/api/v2.1/search?lat=" + myLatLng.lat + "&lon=" + myLatLng.lng + "&apikey=c5c5699a30922c7c7d4b8500982d27fc"
+            url: url[i]
         }).done(function(data){
             var cityRestaurants = data.restaurants;
                 for (i = 0; i < cityRestaurants.length; i++) {
@@ -51,6 +61,7 @@ function initMap() {
         }).fail(function(){
             alert("Could not fetch data. Please refresh your browser!");
         });
+    };
     };
 
     var listenerFunction = function () {
