@@ -13,7 +13,7 @@ body {
     position: absolute;
     left: 182px;
     z-index: 99;
-    transform: translateX(-160px);
+    transform: translateX(-170px);
     transition-duration: 0.5s;
 }
 
