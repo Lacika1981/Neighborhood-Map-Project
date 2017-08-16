@@ -1,4 +1,4 @@
-var map, infoWindow;
+var map, infoWindow, bounds;
 var restaurant = [];
 var markers = [];
 var myLatLng = { lat: 51.517023, lng: -0.129071 };
@@ -15,6 +15,7 @@ var url = [
 ];
 
 function initMap() {
+  bounds = new google.maps.LatLngBounds();
   var getRestaurants = function () {
     for (var i = 0; i < url.length; i++) {
       $.ajax({
@@ -114,7 +115,7 @@ var populateInfoWindow = function (marker, infoWindow) {
 
 // places the markers on the map
 var showListings = function () {
-  var bounds = new google.maps.LatLngBounds();
+  //var bounds = new google.maps.LatLngBounds();
   // Extend the boundaries of the map for each marker and display the marker
   for (var i = 0; i < markers.length; i++) {
     markers[i].setMap(map);
@@ -185,7 +186,7 @@ function AppViewModel() {
       self.filteredList(self.restaurantArrayFix());
     } else {
       self.filteredList([]); // empty the array before pushing the restaurants what contains the typed characters
-      var bounds = new google.maps.LatLngBounds();
+      //var bounds = new google.maps.LatLngBounds();
       for (var j = 0, len = self.filterItemLength(); j < len; j++) {
         if (restaurantArray[j].names.toLowerCase().indexOf(filter) != -1) {
           restaurantArray[j].markers.setMap(map);
@@ -214,24 +215,6 @@ function AppViewModel() {
     });
   };
 }
-
-/* // menu control
-var moved = false;
-
-$(function () {
-  $('#menu').on('click', function () {
-    if (!moved) {
-      $('#search').css({ "-webkit-transform": "translateX(0px)" });
-      $('#menu').css({ "-webkit-transform": "translateX(0px)" });
-      moved = true;
-    }
-    else {
-      $('#search').css({ "-webkit-transform": "translateX(-170px)" });
-      $('#menu').css({ "-webkit-transform": "translateX(-170px)" });
-      moved = false;
-    }
-  });
-}); */
 
 appVM = new AppViewModel();
 
