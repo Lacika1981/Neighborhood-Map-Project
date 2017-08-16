@@ -11,30 +11,34 @@
 
 <body>
     <div id="container">
-        <div id="menu"></div>
-        <div id="search">
-            <div class="title">
-                <h1>Restaurants</h1>
-                <p class="scrollText">(Scroll the menu)</p>
+        <nav>
+            <div id="menu" data-bind="click: clickMenu, css: { 'moving': visibleExample }"></div>
+            <div id="search" data-bind="css: { 'moving': visibleExample }">
+                <div class="title">
+                    <h1>Restaurants</h1>
+                    <p class="scrollText">(Scroll the menu)</p>
+                </div>
+                <ul data-bind="foreach: filteredList">
+                    <li data-bind="click: $parent.showRestaurant">
+                        <p class="restaurantNames" data-bind="text: names"></p>
+                    </li>
+                </ul>
+                <button id="resetButton" data-bind="click: clear, fadeVisible: filterItemLength() > filteredList().length">Reset</button>
+                <form>
+                    <input data-bind="value: filterItem, valueUpdate: 'afterkeydown'" placeholder="Search for restaurant">
+                </form>
             </div>
-            <ul data-bind="foreach: filteredList">
-                <li data-bind="click: $parent.showRestaurant">
-                    <p class="restaurantNames" data-bind="text: names"></p>
-                </li>
-            </ul>
-            <button id="resetButton" data-bind="click: clear, fadeVisible: filterItemLength() > filteredList().length">Reset</button>
-            <form>
-                <input data-bind="value: filterItem, valueUpdate: 'afterkeydown'" placeholder="Search for restaurant">
-            </form>
-        </div>
+        </nav>
         <div id="map"></div>
     </div>
     <!-- https://developers.google.com/maps/documentation/javascript/libraries -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
     <script src="js/knockout-3.4.2.js"></script>
-    <script async src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyAw2wf3AfgVr3ux3xWaVkrccqjpzbDdF1E&v=3&callback=initMap&onerror=mapInitError()"></script>
+    <script src="js/style.json"></script>
     <script src="js/app.js"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyAw2wf3AfgVr3ux3xWaVkrccqjpzbDdF1E&v=3&callback=initMap"
+        onerror="mapInitError()"></script>
 </body>
 
 </html>
