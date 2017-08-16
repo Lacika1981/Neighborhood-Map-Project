@@ -115,7 +115,6 @@ var populateInfoWindow = function (marker, infoWindow) {
 
 // places the markers on the map
 var showListings = function () {
-  //var bounds = new google.maps.LatLngBounds();
   // Extend the boundaries of the map for each marker and display the marker
   for (var i = 0; i < markers.length; i++) {
     markers[i].setMap(map);
@@ -186,7 +185,6 @@ function AppViewModel() {
       self.filteredList(self.restaurantArrayFix());
     } else {
       self.filteredList([]); // empty the array before pushing the restaurants what contains the typed characters
-      //var bounds = new google.maps.LatLngBounds();
       for (var j = 0, len = self.filterItemLength(); j < len; j++) {
         if (restaurantArray[j].names.toLowerCase().indexOf(filter) != -1) {
           restaurantArray[j].markers.setMap(map);
